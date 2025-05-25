@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Etkinlik Ekle</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: url(images/arkaplan.jpg);
+      background-size: cover;
+      background-position: center;
+      min-height: 100vh;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+    }
+
+    form {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: white;
+    }
+
+    input, textarea, select, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: white;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: white;
+    }
+
+    #mesaj {
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <form id="etkinlikForm">
+    <h2>Etkinlik Ekle</h2>
+    <input type="text" id="baslik" placeholder="Etkinlik Başlığı" required>
+    <textarea id="aciklama" placeholder="Etkinlik Açıklaması" required></textarea>
+    <input type="date" id="tarih" required>
+    <input type="number" id="kontenjan" placeholder="Kontenjan" required>
+    <select id="tur" required>
+      <option value="">Tür Seçin</option>
+      <option value="konser">Konser</option>
+      <option value="tiyatro">Tiyatro</option>
+      <option value="spor">Spor</option>
+      <option value="sinema">Sinema</option>
+    </select>
+    <input type="number" id="fiyat" placeholder="Fiyat (₺)" required>
+    <button type="submit">Etkinliği Ekle</button>
+    <p id="mesaj"></p>
+  </form>
+
+  <script>
+    document.getElementById("etkinlikForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const baslik = document.getElementById("baslik").value;
+      const aciklama = document.getElementById("aciklama").value;
+      const tarih = document.getElementById("tarih").value;
+      const kontenjan = document.getElementById("kontenjan").value;
+      const tur = document.getElementById("tur").value;
+      const fiyat = document.getElementById("fiyat").value;
+
+      const response = await fetch("http://localhost:5000/admin/etkinlik-ekle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ baslik, aciklama, tarih, kontenjan, tur, fiyat })
+      });
+
+      const sonuc = await response.json();
+      document.getElementById("mesaj").innerText = sonuc.mesaj;
+
+      if (response.ok) {
+        alert("Etkinlik başarıyla eklendi!");
+        document.getElementById("etkinlikForm").reset();
+      }
+    });
+  </script>
+</body>
+</html>
+

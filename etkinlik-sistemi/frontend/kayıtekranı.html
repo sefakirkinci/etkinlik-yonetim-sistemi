@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kayıt Formu</title>
+    <link rel="stylesheet" href="kayıtekranıstyle.css">
+</head>
+<body>
+    <div class="kayıt-form">
+        <form id="kayitForm">
+            <h1>Kayıt Ol</h1>
+            
+            <input type="email" id="email" placeholder="Email" required class="txt">
+            <input type="password" id="sifre" placeholder="Şifre" required class="txt">
+            <input type="submit" class="signup-btn" value="Hesap Oluştur">
+            <p id="mesaj"></p>
+        </form>
+    </div>
+
+    <script>
+      document.getElementById("kayitForm").addEventListener("submit", async function(e) {
+          e.preventDefault(); // Sayfa yenilenmesini engeller
+
+          const email = document.getElementById("email").value;
+          const sifre = document.getElementById("sifre").value;
+
+          const response = await fetch("http://localhost:5000/kullanici/kayit", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json"
+              },
+              body: JSON.stringify({ email, sifre })
+          });
+
+          const sonuc = await response.json();
+
+          document.getElementById("mesaj").innerText = sonuc.mesaj;
+
+          if (response.ok) {
+              alert("Kayıt başarılı! Giriş ekranına yönlendiriliyorsunuz.");
+              window.location.href = "girişekranı.html";
+          }
+      });
+    </script>
+</body>
+</html>

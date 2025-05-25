@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Sepet</title>
+  <link rel="stylesheet" href="Anasayfastyle.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url(images/arkaplan.jpg);
+      background-size: cover;
+      font-family: "Open Sans", sans-serif;
+      color: white;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 80px auto;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+    }
+
+    th, td {
+      padding: 15px;
+      border: 1px solid gray;
+      text-align: center;
+      font-size: 18px;
+    }
+
+    th {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    h3#toplamFiyat {
+      text-align: right;
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .form-group label {
+  text-align: center;
+  font-size: 16px;
+  width: 100%;
+}
+
+
+    .form-group select,
+    .form-group input,
+    .form-group button {
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 20px;
+      border: none;
+      outline: none;
+      text-align: center;
+    }
+
+    .form-group button {
+      font-weight: bold;
+      background-color: white;
+      color: black;
+      border: 1px solid black;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .form-group button:hover {
+      background-color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1> Sepetiniz</h1>
+
+    <table id="sepetTablosu">
+      <tr>
+        <th>Etkinlik</th>
+        <th>Fiyat</th>
+      </tr>
+    </table>
+
+    <h3 id="toplamFiyat">Toplam: ₺0</h3>
+
+    <div class="form-group">
+      <label for="odeme">Ödeme Yöntemi:</label>
+      <select id="odeme">
+        <option value="kart">Kart</option>
+        <option value="nakit">Nakit</option>
+      </select>
+
+      <label for="email">Kullanıcı Email:</label>
+      <input type="email" id="email" placeholder="Email giriniz" required>
+
+      <button onclick="satinAl()">Satın Al</button>
+    </div>
+  </div>
+
+  <script>
+    const sepet = JSON.parse(localStorage.getItem("sepet")) || [];
+    const tablo = document.getElementById("sepetTablosu");
+    let toplam = 0;
+
+    sepet.forEach(e => {
+      const satir = document.createElement("tr");
+      satir.innerHTML = `<td>${e.baslik}</td><td>₺${e.fiyat}</td>`;
+      tablo.appendChild(satir);
+      toplam += e.fiyat;
+    });
+
+    document.getElementById("toplamFiyat").innerText = "Toplam: ₺" + toplam;
+
+    async function satinAl() {
+      const email = document.getElementById("email").value;
+      const odeme = document.getElementById("odeme").value;
+
+      if (!email || sepet.length === 0) {
+        return alert("Lütfen email girin ve sepetiniz boş olmasın.");
+      }
+
+      const promises = sepet.map(e => {
+        return fetch("http://localhost:5000/etkinlikler/kontenjan-azalt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: e.id })
+        });
+      });
+
+      await Promise.all(promises);
+
+      await fetch("http://localhost:5000/satin-al", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          odemeYontemi: odeme,
+          alinanlar: sepet,
+          tarih: new Date().toISOString()
+        })
+      });
+
+      alert("Satın alma başarılı!");
+      localStorage.removeItem("sepet");
+      location.reload();
+    }
+  </script>
+</body>
+</html>

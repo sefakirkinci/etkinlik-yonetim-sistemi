@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Duyuru Ekle</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: url(images/arkaplan.jpg);
+      background-size: cover;
+      background-position: center;
+      min-height: 100vh;
+      color: white;
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    form {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: white;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    button {
+      background-color: white;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: white;
+    }
+
+    #mesaj {
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <form id="duyuruForm">
+    <h2>Duyuru Ekle</h2>
+    <input type="text" id="baslik" placeholder="Duyuru Başlığı" required>
+    <textarea id="icerik" placeholder="Duyuru İçeriği" required></textarea>
+    <input type="date" id="tarih" required>
+    <button type="submit">Ekle</button>
+    <p id="mesaj"></p>
+  </form>
+
+  <script>
+    document.getElementById("duyuruForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const baslik = document.getElementById("baslik").value;
+      const icerik = document.getElementById("icerik").value;
+      const tarih = document.getElementById("tarih").value;
+
+      const response = await fetch("http://localhost:5000/admin/duyuru-ekle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ baslik, icerik, tarih })
+      });
+
+      const sonuc = await response.json();
+      document.getElementById("mesaj").innerText = sonuc.mesaj;
+      if (response.ok) {
+        alert("Duyuru eklendi!");
+        document.getElementById("duyuruForm").reset();
+      }
+    });
+  </script>
+</body>
+</html>

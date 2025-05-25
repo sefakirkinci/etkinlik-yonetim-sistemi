@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kullanıcı Paneli</title>
+  <link rel="stylesheet" href="Anasayfastyle.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url(images/arkaplan.jpg);
+      background-size: cover;
+      font-family: "Open Sans", sans-serif;
+      color: white;
+    }
+
+    .container {
+      padding: 30px;
+    }
+
+    .panel-title {
+      font-size: 48px;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    li {
+      margin: 20px 0;
+    }
+
+    li a {
+      display: inline-block;
+      font-size: 20px;
+      color: white;
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 12px 25px;
+      border-radius: 25px;
+      text-decoration: none;
+      transition: 0.3s;
+      border: 1px solid white;
+    }
+
+    li a:hover {
+      background-color: white;
+      color: black;
+    }
+
+    .logout-btn {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      background-color: red;
+      padding: 10px 18px;
+      border: none;
+      color: white;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .logout-btn:hover {
+      background-color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button class="logout-btn" onclick="cikisYap()"> Çıkış Yap</button>
+    <h1 class="panel-title"> Kullanıcı Paneli</h1>
+
+    <ul>
+      <li><a href="etkinlikler.html"> Etkinlikleri Görüntüle</a></li>
+      <li><a href="sepet.html"> Sepetim</a></li>
+      <li><a href="geçmişim.html"> Satın Alma Geçmişim</a></li>
+      <li><a href="duyurular.html"> Duyurular</a></li>
+    </ul>
+  </div>
+
+  <script>
+    function cikisYap() {
+      localStorage.removeItem("email");
+      localStorage.removeItem("rol");
+      alert("Çıkış yapıldı.");
+      window.location.href = "girişekranı.html";
+    }
+  </script>
+</body>
+</html>

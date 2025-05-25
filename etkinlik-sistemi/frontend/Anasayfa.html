@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiletHanem</title>
+    <link rel="stylesheet" href="Anasayfastyle.css">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div class="logo">
+                <a href="#">BiletHanem</a>
+            </div>
+            <ul>
+                <li><a href="#"class="active">Ana Sayfa</a></li>
+                <li><a href="#">Etkinlikler</a></li>                
+                <li><a href="hakkımızda.html">Hakkımızda</a></li>
+                
+            </ul>
+        </div>
+        <div class="center">
+            <h1>BiletHanem</h1>
+            <div class="buttons">
+                <button id="kayıtBtn">Kayıt Ol</button>
+                <button id="girisBtn">Giriş Yap</button>
+            </div>
+            
+
+        </div>
+    </div>
+    <script>
+    document.getElementById("girisBtn").onclick = function() {
+        window.location.href = "girişekranı.html";
+    };
+
+    document.getElementById("kayıtBtn").onclick = function() {
+        window.location.href = "kayıtekranı.html";
+    };
+
+
+</script>
+
+</body>
+</html>

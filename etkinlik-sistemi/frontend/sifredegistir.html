@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Şifre Değiştir</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: url('images/arkaplan.jpg');
+      background-size: cover;
+      background-position: center;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    form {
+      background-color: rgba(0, 0, 0, 0.6);
+      padding: 30px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px;
+      width: 100%;
+      background-color: white;
+      color: black;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: white;
+    }
+
+    #mesaj {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <form id="sifreForm">
+    <h1>Şifrenizi Değiştirin</h1>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="yeniSifre" placeholder="Yeni Şifre" required>
+    <button type="submit">Şifreyi Değiştir</button>
+    <p id="mesaj"></p>
+  </form>
+
+  <script>
+    document.getElementById("sifreForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const yeniSifre = document.getElementById("yeniSifre").value;
+
+      const response = await fetch("http://localhost:5000/kullanici/sifre-degistir", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, yeniSifre })
+      });
+
+      const sonuc = await response.json();
+      document.getElementById("mesaj").innerText = sonuc.mesaj;
+
+      if (response.ok) {
+        alert("Şifre değiştirildi! Giriş ekranına yönlendiriliyorsunuz.");
+        window.location.href = "girişekranı.html";
+      }
+    });
+  </script>
+</body>
+</html>
+

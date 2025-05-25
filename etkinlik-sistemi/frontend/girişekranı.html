@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giriş Yap</title>
+  <link rel="stylesheet" href="girişekranıstyle.css">
+</head>
+<body>
+  <div class="giriş-form">
+    <form id="girisForm">
+      <h1>Giriş Yap</h1>
+      <input type="email" id="email" placeholder="Email" required class="txt">
+      <input type="password" id="sifre" placeholder="Şifre" required class="txt">
+      <input type="submit" class="signup-btn" value="Giriş">
+      <a href="kayıtekranı.html">Hesabınız yok mu?</a>
+      <p id="mesaj"></p>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("girisForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const sifre = document.getElementById("sifre").value;
+
+      try {
+        const response = await fetch("http://localhost:5000/kullanici/giris", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, sifre })
+        });
+
+        const sonuc = await response.json();
+        document.getElementById("mesaj").innerText = sonuc.mesaj;
+
+        if (response.ok) {
+          // Bilgileri localStorage'a kaydet
+          localStorage.setItem("email", sonuc.email);
+          localStorage.setItem("rol", sonuc.rol || "kullanici");
+
+          if (sonuc.ilkGiris) {
+            alert("İlk girişinizde şifrenizi değiştirmeniz gerekiyor.");
+            window.location.href = "sifredegistir.html";
+          } else {
+            if (sonuc.rol === "admin") {
+              window.location.href = "adminpanel.html";
+            } else {
+              window.location.href = "kullanıcıpanel.html";
+            }
+          }
+        }
+
+      } catch (err) {
+        console.error("Hata:", err);
+        document.getElementById("mesaj").innerText = "Sunucu hatası oluştu.";
+      }
+    });
+  </script>
+</body>
+</html>

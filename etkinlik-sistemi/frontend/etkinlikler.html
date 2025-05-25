@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Etkinlikler</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: url('images/arkaplan.jpg');
+      background-size: 100% 100%;
+      min-height: 100vh;
+      color: white;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      font-size: 50px;
+      font-weight: bold;
+      margin-top: 40px;
+    }
+
+    .etkinlik-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+      margin-top: 40px;
+    }
+
+    .etkinlik-kart {
+      background-color: rgba(50, 50, 50, 0.6);
+      border-radius: 20px;
+      padding: 25px;
+      width: 300px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+      transition: transform 0.3s;
+    }
+
+    .etkinlik-kart:hover {
+      transform: scale(1.05);
+    }
+
+    .etkinlik-kart h3 {
+      color: white;
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
+
+    .etkinlik-kart p {
+      margin: 6px 0;
+      font-size: 14px;
+    }
+
+    .etkinlik-kart button {
+      margin-top: 12px;
+      padding: 10px;
+      width: 100%;
+      font-size: 16px;
+      font-weight: bold;
+      background-color: white;
+      color: black;
+      border: 1px solid black;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .etkinlik-kart button:hover {
+      background-color: white;
+    }
+
+    .etkinlik-kart button:disabled {
+      background-color: gray;
+      cursor: not-allowed;
+      color: white;
+    }
+
+    .sepet-link {
+      display: block;
+      text-align: center;
+      margin-top: 50px;
+      font-size: 20px;
+      color: white;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Etkinlikler</h1>
+  <div class="etkinlik-container" id="etkinlikListesi"></div>
+
+  <a href="sepet.html" class="sepet-link"> Sepete Git</a>
+
+  <script>
+    async function etkinlikleriGetir() {
+      try {
+        const response = await fetch("http://localhost:5000/etkinlikler");
+        let etkinlikler = await response.json();
+
+        //  Etkinlikleri tarih sırasına göre sırala
+        etkinlikler.sort((a, b) => new Date(a.tarih) - new Date(b.tarih));
+
+        const liste = document.getElementById("etkinlikListesi");
+        liste.innerHTML = "";
+
+        etkinlikler.forEach(async (e, index) => {
+          const kart = document.createElement("div");
+          kart.className = "etkinlik-kart";
+
+          kart.innerHTML = `
+            <h3>${e.baslik}</h3>
+            <p><strong>Açıklama:</strong> ${e.aciklama}</p>
+            <p><strong>Tarih:</strong> ${e.tarih}</p>
+            <p><strong>Tür:</strong> ${e.tur}</p>
+            <p><strong>Fiyat:</strong> ₺${e.fiyat}</p>
+            <p><strong>Kontenjan:</strong> ${e.kontenjan}</p>
+            <p id="hava-${index}" style="margin-top: 6px;">⏳ Hava durumu yükleniyor...</p>
+            <button onclick="sepeteEkle('${e.id}', '${e.baslik}', ${e.fiyat})" ${e.kontenjan <= 0 ? "disabled" : ""}>
+              Bilet Al
+            </button>
+          `;
+
+          liste.appendChild(kart);
+
+          // 🌦 Erzurum hava durumu API
+          try {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=39.9&longitude=41.3&daily=precipitation_sum&timezone=Europe%2FIstanbul&start_date=${e.tarih}&end_date=${e.tarih}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            const yagis = data.daily?.precipitation_sum?.[0];
+
+            const sonuc = yagis < 2
+              ? " Etkinlik planlanabilir (yağış yok)"
+              : " Yağış var, etkinlik riskli olabilir";
+
+            document.getElementById(`hava-${index}`).innerText = sonuc;
+          } catch {
+            document.getElementById(`hava-${index}`).innerText = " Hava durumu alınamadı";
+          }
+        });
+      } catch (err) {
+        console.error("Etkinlikler alınamadı:", err);
+      }
+    }
+
+    function sepeteEkle(id, baslik, fiyat) {
+      let sepet = JSON.parse(localStorage.getItem("sepet")) || [];
+      const zatenVar = sepet.find(item => item.id === id);
+
+      if (!zatenVar) {
+        sepet.push({ id, baslik, fiyat });
+        localStorage.setItem("sepet", JSON.stringify(sepet));
+        alert("Etkinlik sepete eklendi!");
+      } else {
+        alert("Bu etkinlik zaten sepette.");
+      }
+    }
+
+    etkinlikleriGetir();
+  </script>
+</body>
+</html>
+

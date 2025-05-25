@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Satın Alma Geçmişim</title>
+  <link rel="stylesheet" href="Anasayfastyle.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url(images/arkaplan.jpg);
+      background-size: cover;
+      font-family: "Open Sans", sans-serif;
+      color: white;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 80px auto;
+      background-color: rgba(0, 0, 0, 0.75);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 30px;
+    }
+
+    input[type="email"] {
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 20px;
+      border: none;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    button {
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: black;
+      background-color: white;
+      border: 1px solid black;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: white;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 30px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 15px;
+      border: 1px solid gray;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    th {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1> Satın Alma Geçmişim</h1>
+
+    <input type="email" id="email" placeholder="Email giriniz">
+    <br>
+    <button onclick="gecmisiGetir()">Geçmişi Göster</button>
+
+    <table id="gecmisTablo">
+      <tr><th>Tarih</th><th>Etkinlik</th><th>Ödeme</th></tr>
+    </table>
+  </div>
+
+  <script>
+    async function gecmisiGetir() {
+      const email = document.getElementById("email").value;
+      if (!email) {
+        alert("Lütfen geçerli bir email adresi giriniz.");
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5000/satin-al-gecmis?email=${encodeURIComponent(email)}`);
+      const veri = await response.json();
+
+      const tablo = document.getElementById("gecmisTablo");
+      tablo.innerHTML = "<tr><th>Tarih</th><th>Etkinlik</th><th>Ödeme</th></tr>";
+
+      veri.forEach(kayit => {
+        kayit.alinanlar.forEach(etkinlik => {
+          const satir = document.createElement("tr");
+          satir.innerHTML = `<td>${new Date(kayit.tarih).toLocaleString()}</td><td>${etkinlik.baslik}</td><td>${kayit.odemeYontemi}</td>`;
+          tablo.appendChild(satir);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

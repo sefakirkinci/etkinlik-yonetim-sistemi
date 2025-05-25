@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Yönetici Paneli</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: url(images/arkaplan.jpg);
+      background-size: cover;
+      background-position: center;
+      min-height: 100vh;
+      color: white;
+      padding: 30px;
+      backdrop-filter: brightness(0.9);
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+
+    li a {
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      padding: 10px 20px;
+      background-color: rgba(0, 0, 0, 0.4);
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+
+    li a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    h2 {
+      color: white;
+      margin-top: 40px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto 40px auto;
+      border-collapse: collapse;
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    th, td {
+      padding: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      text-align: center;
+    }
+
+    th {
+      background-color: rgba(0, 0, 0, 0.5);
+      font-weight: bold;
+    }
+
+    button {
+      padding: 8px 14px;
+      font-size: 14px;
+      background-color: white;
+      color: black;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background-color: white;
+    }
+
+    button.sil {
+      background-color: white;
+    }
+
+    .logout-btn {
+      float: right;
+      background-color: red;
+      padding: 8px 16px;
+      border-radius: 5px;
+      font-weight: bold;
+      margin-top: -60px;
+    }
+
+    .logout-btn:hover {
+      background-color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛠 Yönetici Paneli</h1>
+  <button class="logout-btn" onclick="cikisYap()"> Çıkış Yap</button>
+
+  <ul>
+    <li><a href="etkinlikekle.html"> Etkinlik Ekle</a></li>
+    <li><a href="duyuruekle.html"> Duyuru Ekle</a></li>
+    <li><a href="geçmişim.html"> Satın Alma Kayıtları</a></li>
+    <li><a href="duyurular.html"> Duyuruları Gör</a></li>
+  </ul>
+
+  <h2> Onay Bekleyen Kullanıcılar</h2>
+  <table id="kullaniciTablosu">
+    <tr><th>Email</th><th>İşlem</th></tr>
+  </table>
+
+  <h2> Mevcut Duyurular</h2>
+  <table id="duyuruTablosu">
+    <tr><th>Başlık</th><th>Tarih</th><th>İşlem</th></tr>
+  </table>
+
+  <h2> Mevcut Etkinlikler</h2>
+  <table id="etkinlikTablosu">
+    <tr><th>Başlık</th><th>Tarih</th><th>İşlem</th></tr>
+  </table>
+
+  <script>
+    function cikisYap() {
+      localStorage.removeItem("email");
+      localStorage.removeItem("rol");
+      alert("Çıkış yapıldı.");
+      window.location.href = "girişekranı.html";
+    }
+
+    async function kullanicilariGetir() {
+      const res = await fetch("http://localhost:5000/kullanicilar-bekleyen");
+      const data = await res.json();
+
+      const tablo = document.getElementById("kullaniciTablosu");
+      data.forEach(k => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${k.email}</td>
+                        <td><button onclick="onayla('${k.id}')">Onayla</button></td>`;
+        tablo.appendChild(tr);
+      });
+    }
+
+    async function onayla(id) {
+      await fetch("http://localhost:5000/kullanici-onayla", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+      alert("Kullanıcı onaylandı.");
+      location.reload();
+    }
+
+    async function duyurulariGetir() {
+      const res = await fetch("http://localhost:5000/duyurular");
+      const duyurular = await res.json();
+      const tablo = document.getElementById("duyuruTablosu");
+      duyurular.forEach(d => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${d.baslik}</td>
+                        <td>${d.tarih}</td>
+                        <td><button class="sil" onclick="duyuruSil('${d.id}')">Sil</button></td>`;
+        tablo.appendChild(tr);
+      });
+    }
+
+    async function duyuruSil(id) {
+      await fetch("http://localhost:5000/duyuru-sil", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+      alert("Duyuru silindi.");
+      location.reload();
+    }
+
+    async function etkinlikleriGetir() {
+      const res = await fetch("http://localhost:5000/etkinlikler");
+      const etkinlikler = await res.json();
+      const tablo = document.getElementById("etkinlikTablosu");
+      etkinlikler.forEach(e => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${e.baslik}</td>
+                        <td>${e.tarih}</td>
+                        <td><button class="sil" onclick="etkinlikSil('${e.id}')">Sil</button></td>`;
+        tablo.appendChild(tr);
+      });
+    }
+
+    async function etkinlikSil(id) {
+      const onay = confirm("Bu etkinliği silmek istediğinize emin misiniz?");
+      if (!onay) return;
+
+      await fetch("http://localhost:5000/admin/etkinlik-sil", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+      alert("Etkinlik silindi.");
+      location.reload();
+    }
+
+    kullanicilariGetir();
+    duyurulariGetir();
+    etkinlikleriGetir();
+  </script>
+</body>
+</html>
